@@ -30,7 +30,7 @@ SHA256: A7:D8:20:C7:E5:E9:6B:3B:63:51:D6:9F:6B:C6:AD:D3:CF:AC:55:33:02:27:79:A6:
 # FAQ
 
 ### Which types of stations are supposed by Acoustic?:
-Acoustic currently support MP3, AAC, and also M3U8 HLS. Opus should work but is untested.
+Acoustic currently support MP3, AAC, and also M3U8 HLS. Opus and others may work but is untested.
 
 
 # Installation
