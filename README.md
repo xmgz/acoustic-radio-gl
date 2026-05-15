@@ -15,6 +15,7 @@
 ## Features:
 - Supports M3U file importing/exporting
 - Works on Android 5 to 16
+- ICY metadata for stations
 
 > [!NOTE]
 > If you wish to suggest features, feel free to open an issue for the suggestion.
