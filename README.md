@@ -19,6 +19,12 @@
 > [!NOTE]
 > If you wish to suggest features, feel free to open an issue for the suggestion.
 
+# FAQ
+
+### Which types of stations are supposed by Acoustic?:
+Acoustic currently support MP3, AAC, and also M3U8 HLS. Opus should work but is untested.
+
+
 # Installation
 
 ### Android
