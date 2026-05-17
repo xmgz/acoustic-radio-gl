@@ -1,8 +1,12 @@
 package com.metalshard.projectwave
 
+import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
+import androidx.media3.common.ForwardingPlayer
 import androidx.media3.common.MediaMetadata
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
@@ -10,9 +14,11 @@ import androidx.media3.session.MediaSessionService
 class PlaybackService : MediaSessionService() {
     private var mediaSession: MediaSession? = null
 
+    @OptIn(UnstableApi::class)
     override fun onCreate() {
         super.onCreate()
-        val player = ExoPlayer.Builder(this).build().apply {
+
+        val rawPlayer = ExoPlayer.Builder(this).build().apply {
             setAudioAttributes(
                 AudioAttributes.Builder()
                     .setUsage(C.USAGE_MEDIA)
@@ -22,12 +28,17 @@ class PlaybackService : MediaSessionService() {
             )
         }
 
-        player.addListener(object : androidx.media3.common.Player.Listener {
-            override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {
-            }
+        rawPlayer.addListener(object : Player.Listener {
+            override fun onMediaMetadataChanged(mediaMetadata: MediaMetadata) {}
         })
 
-        mediaSession = MediaSession.Builder(this, player).build()
+        val interceptingPlayer = object : ForwardingPlayer(rawPlayer) {
+            override fun pause() {
+                super.stop()
+            }
+        }
+
+        mediaSession = MediaSession.Builder(this, interceptingPlayer).build()
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? = mediaSession

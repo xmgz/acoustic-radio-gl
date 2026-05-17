@@ -122,6 +122,7 @@ class MainActivity : ComponentActivity() {
 
                 val playbackStats by radioPlayer.playbackInfo.collectAsState()
                 val currentTitle by radioPlayer.streamTitle.collectAsState()
+                val isConnected by radioPlayer.isControllerConnected.collectAsState()
 
                 if (loadingMessage != null) {
                     LoadingDialog(loadingMessage!!)
@@ -147,6 +148,16 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
+                LaunchedEffect(isConnected) {
+                    if (isConnected && currentStation == null && radioPlayer.isPlayingActive) {
+                        val active = radioPlayer.getActiveStationFromSession()
+                        if (active != null) {
+                            val matchedStation = stations.find { it.streamUrl == active.streamUrl }
+                            currentStation = matchedStation ?: active
+                        }
+                    }
+                }
+
                 val m3uExportLauncher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.CreateDocument("audio/x-mpegurl")
                 ) { uri ->
@@ -162,9 +173,9 @@ class MainActivity : ComponentActivity() {
 
                 LaunchedEffect(stations) { saveStations(stations) }
 
-                LaunchedEffect(currentStation) {
+                LaunchedEffect(currentStation, playbackStats) {
                     secondsListened = 0
-                    while (currentStation != null) {
+                    while (currentStation != null && radioPlayer.isPlayingActive) {
                         delay(1000)
                         secondsListened++
                     }
