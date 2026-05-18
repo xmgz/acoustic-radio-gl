@@ -1,1 +1,1 @@
-App for viewing event schedules for the Roblox group "Pinewood Builders"
+Simple internet radio application for Android
