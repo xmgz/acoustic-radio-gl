@@ -1,6 +1,7 @@
 package com.metalshard.projectwave
 
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -77,10 +78,14 @@ class MainActivity : ComponentActivity() {
     private lateinit var radioPlayer: RadioPlayer
     private val gson = Gson()
 
+    private var pendingUriHandler = mutableStateOf<RadioStation?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         radioPlayer = RadioPlayer(this)
+
+        pendingUriHandler.value = UriHandler.handleIncomingIntent(intent)
 
         val imageLoader = ImageLoader.Builder(this)
             .components { add(SvgDecoder.Factory()) }
@@ -123,6 +128,15 @@ class MainActivity : ComponentActivity() {
                 val playbackStats by radioPlayer.playbackInfo.collectAsState()
                 val currentTitle by radioPlayer.streamTitle.collectAsState()
                 val isConnected by radioPlayer.isControllerConnected.collectAsState()
+
+                val activeUri by pendingUriHandler
+
+                LaunchedEffect(activeUri) {
+                    activeUri?.let { deepLink ->
+                        stationToEdit = deepLink
+                        pendingUriHandler.value = null
+                    }
+                }
 
                 if (loadingMessage != null) {
                     LoadingDialog(loadingMessage!!)
@@ -271,6 +285,12 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        pendingUriHandler.value = UriHandler.handleIncomingIntent(intent)
     }
 
     private fun saveStations(stations: List<RadioStation>) {
