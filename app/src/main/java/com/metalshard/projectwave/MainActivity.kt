@@ -39,6 +39,7 @@ import coil.compose.AsyncImage
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import coil.decode.SvgDecoder
+import okhttp3.OkHttpClient
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.delay
@@ -74,21 +75,17 @@ private val DarkGreenScheme = darkColorScheme(
     surface = Color(0xFF121212)
 )
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), coil.ImageLoaderFactory {
     private lateinit var radioPlayer: RadioPlayer
     private val gson = Gson()
 
     private var pendingUriHandler = mutableStateOf<RadioStation?>(null)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
-        super.onCreate(savedInstanceState)
-        radioPlayer = RadioPlayer(this)
-
-        pendingUriHandler.value = UriHandler.handleIncomingIntent(intent)
-
-        val imageLoader = ImageLoader.Builder(this)
-            .components { add(SvgDecoder.Factory()) }
+    override fun newImageLoader(): ImageLoader {
+        return ImageLoader.Builder(this)
+            .components {
+                add(SvgDecoder.Factory())
+            }
             .memoryCache { MemoryCache.Builder(this).maxSizePercent(0.25).build() }
             .diskCache {
                 DiskCache.Builder()
@@ -98,6 +95,14 @@ class MainActivity : ComponentActivity() {
             }
             .crossfade(true)
             .build()
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
+        super.onCreate(savedInstanceState)
+        radioPlayer = RadioPlayer(this)
+
+        pendingUriHandler.value = UriHandler.handleIncomingIntent(intent)
 
         setContent {
             val context = LocalContext.current
@@ -199,13 +204,29 @@ class MainActivity : ComponentActivity() {
                     StationDialog(
                         initialStation = stationToEdit,
                         onDismiss = { showAddDialog = false; stationToEdit = null },
-                        onConfirm = { name, url, icon ->
-                            stations = if (stationToEdit != null) {
-                                stations.map { if (it.id == stationToEdit!!.id) it.copy(name = name, streamUrl = url, imageUrl = icon) else it }
+                        onConfirm = { name, url, icon, moveAction ->
+                            if (stationToEdit != null && stationToEdit!!.id != -99) {
+                                val updatedList = stations.map {
+                                    if (it.id == stationToEdit!!.id) {
+                                        it.copy(name = name, streamUrl = url, imageUrl = icon)
+                                    } else {
+                                        it
+                                    }
+                                }.toMutableList()
+
+                                val item = updatedList.find { it.id == stationToEdit!!.id }
+                                if (item != null) {
+                                    updatedList.remove(item)
+                                    val originalIndex = stations.indexOfFirst { it.id == stationToEdit!!.id }
+                                    updatedList.add(originalIndex.coerceIn(0, updatedList.size), item)
+                                }
+                                stations = updatedList
                             } else {
-                                stations + RadioStation(System.currentTimeMillis().toInt(), name, url, icon)
+                                val newStation = RadioStation(System.currentTimeMillis().toInt(), name, url, icon)
+                                stations = stations + newStation
                             }
-                            showAddDialog = false; stationToEdit = null
+                            showAddDialog = false
+                            stationToEdit = null
                         },
                         onDelete = {
                             stations = stations.filter { it.id != stationToEdit?.id }
@@ -235,7 +256,8 @@ class MainActivity : ComponentActivity() {
                                     stats = playbackStats,
                                     streamTitle = currentTitle,
                                     timer = formatTime(secondsListened),
-                                    onStop = { radioPlayer.stop(); currentStation = null }
+                                    onStop = { radioPlayer.stop(); currentStation = null },
+                                    onEditClick = { stationToEdit = currentStation }
                                 )
                             }
                             NavigationBar(
@@ -267,8 +289,8 @@ class MainActivity : ComponentActivity() {
                                     currentStation = station
                                     radioPlayer.play(station)
                                 },
-                                onStationLongClick = { station ->
-                                    stationToEdit = station
+                                onStationsReordered = { updatedList ->
+                                    stations = updatedList
                                 }
                             )
                         } else {
@@ -402,11 +424,11 @@ fun SettingsScreen(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                val creditsText = "Acoustic v1.0\n\n" +
+                val creditsText = "Acoustic v1.3\n\n" +
                         "Developed by:\n" +
                         "TheNextAtlas (Formerly TheMetalShard)\n\n" +
                         "Special thanks:\n" +
-                        "NexGenDriven\nEveryone in the Steel Project"
+                        "NexGenDriven (For coding some stuff)\nEveryone in the Steel Project"
 
                 Text(
                     text = creditsText,
@@ -427,7 +449,8 @@ fun BottomPlayerBar(
     stats: String,
     streamTitle: String,
     timer: String,
-    onStop: () -> Unit
+    onStop: () -> Unit,
+    onEditClick: () -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     var sleepTimerMinutes by remember { mutableIntStateOf(0) }
@@ -435,9 +458,11 @@ fun BottomPlayerBar(
 
     LaunchedEffect(sleepTimerMinutes) {
         if (sleepTimerMinutes > 0) {
-            while (sleepTimerMinutes > 0) {
+            var remainingTime = sleepTimerMinutes
+            while (remainingTime > 0) {
                 delay(60000)
-                sleepTimerMinutes--
+                remainingTime--
+                sleepTimerMinutes = remainingTime
             }
             onStop()
         }
@@ -490,6 +515,14 @@ fun BottomPlayerBar(
                         fontSize = 10.sp
                     )
                 }
+
+                IconButton(
+                    onClick = onEditClick,
+                    modifier = Modifier.padding(end = 4.dp).size(36.dp)
+                ) {
+                    Icon(Icons.Default.Edit, contentDescription = "Edit Station", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+                }
+
                 IconButton(
                     onClick = onStop,
                     modifier = Modifier.size(42.dp).background(MaterialTheme.colorScheme.errorContainer, CircleShape)
@@ -522,7 +555,7 @@ fun BottomPlayerBar(
                         Icon(
                             imageVector = Icons.Default.Schedule,
                             contentDescription = "Set Timer",
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -571,16 +604,18 @@ fun TimerInputDialog(
 fun StationDialog(
     initialStation: RadioStation?,
     onDismiss: () -> Unit,
-    onConfirm: (String, String, String) -> Unit,
+    onConfirm: (String, String, String, String) -> Unit,
     onDelete: () -> Unit
 ) {
     var name by remember { mutableStateOf(initialStation?.name ?: "") }
     var url by remember { mutableStateOf(initialStation?.streamUrl ?: "") }
     var icon by remember { mutableStateOf(initialStation?.imageUrl ?: "") }
 
+    var moveAction by remember { mutableStateOf("NONE") }
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (initialStation == null) "Add Station" else "Edit Station") },
+        title = { Text(if (initialStation == null || initialStation.id == -99) "Add Station" else "Edit Station") },
         text = {
             Column {
                 OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
@@ -591,12 +626,12 @@ fun StationDialog(
             }
         },
         confirmButton = {
-            Button(onClick = { if(name.isNotBlank() && url.isNotBlank()) onConfirm(name, url, icon) }) { Text("Save") }
+            Button(onClick = { if(name.isNotBlank() && url.isNotBlank()) onConfirm(name, url, icon, moveAction) }) { Text("Save") }
         },
         dismissButton = {
             Row {
                 TextButton(onClick = onDismiss) { Text("Cancel") }
-                if (initialStation != null) {
+                if (initialStation != null && initialStation.id != -99) {
                     TextButton(onClick = onDelete) { Text("Delete", color = Color.Red) }
                 }
             }
