@@ -44,7 +44,7 @@ Project Wave was the original name for Acoustic before we changed the name.
 Acoustic is now on F-Droid!
 
 <p>
-  <a href="https://f-droid.org/en/packages/com.metalshard.hyperion/">
+  <a href="https://f-droid.org/en/packages/com.metalshard.projectwave/">
     <img src="https://f-droid.org/badge/get-it-on.png" alt="Add to SideStore" width="200" />
   </a>
 </p>
