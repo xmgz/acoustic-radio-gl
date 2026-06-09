@@ -48,7 +48,7 @@ Acoustic is now on F-Droid and OpenAPK!
     <img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" width="200" />
   </a>
 
-  <a href="https://www.openapk.net/acoustic/com.metalshard.projectwave">
+  <a href="https://www.openapk.net/acoustic/com.metalshard.projectwave/">
     <img src="https://www.openapk.net/images/openapk-badge.png" alt="Get it on OpenAPK" width="200" />
   </a>
   
