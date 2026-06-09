@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Radio
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -43,6 +44,7 @@ fun RadioCard(
     onMoveDown: () -> Unit,
     onLongClick: () -> Unit,
     onCloseEditing: () -> Unit,
+    onEditClick: () -> Unit,
     onClick: () -> Unit
 ) {
     val placeholder = rememberVectorPainter(Icons.Default.Radio)
@@ -67,7 +69,7 @@ fun RadioCard(
                 AsyncImage(
                     model = coil.request.ImageRequest.Builder(LocalContext.current)
                         .data(station.imageUrl)
-                        .addHeader("User-Agent", "ProjectWave/1.3 (themetalshard@softmodd.ing) feat. NexGenDriven") // added this thing for Wikimedia URLs
+                        .addHeader("User-Agent", "ProjectWave/1.3 (themetalshard@softmodd.ing) feat. NexGenDriven")
                         .decoderFactory { result, options, imageLoader ->
                             if (station.imageUrl.endsWith(".svg", ignoreCase = true)) {
                                 SvgDecoder.Factory().create(result, options, imageLoader)
@@ -98,6 +100,15 @@ fun RadioCard(
                     color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f)
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
+                       IconButton(
+                            onClick = {
+                                onEditClick()
+                            },
+                            modifier = Modifier.align(Alignment.TopStart).padding(2.dp).size(24.dp),
+                        ) {
+                            Icon(Icons.Default.Edit, contentDescription = "Edit Station", modifier = Modifier.size(14.dp))
+                        }
+
                         IconButton(
                             onClick = onCloseEditing,
                             modifier = Modifier.align(Alignment.TopEnd).padding(2.dp).size(22.dp)
@@ -156,6 +167,7 @@ fun RadioGrid(
     modifier: Modifier,
     stations: List<RadioStation>,
     onStationSelected: (RadioStation) -> Unit,
+    onStationEditRequested: (RadioStation) -> Unit,
     onStationsReordered: (List<RadioStation>) -> Unit
 ) {
     val gridState = rememberLazyGridState()
@@ -223,6 +235,7 @@ fun RadioGrid(
                 },
                 onLongClick = { activeEditingStationId = station.id },
                 onCloseEditing = { activeEditingStationId = null },
+                onEditClick = { onStationEditRequested(station) },
                 onClick = { onStationSelected(station) }
             )
         }

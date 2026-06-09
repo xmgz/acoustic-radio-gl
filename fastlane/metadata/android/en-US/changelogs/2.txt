@@ -1,0 +1,3 @@
+Added translations (Only Italian for now)
+Moved the edit button to the hold to edit/move station function
+Holding the player will copy track info (Requested by @vinceingithub)

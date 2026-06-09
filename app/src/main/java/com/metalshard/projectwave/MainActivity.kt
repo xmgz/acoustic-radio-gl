@@ -13,6 +13,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -27,10 +28,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -39,7 +40,6 @@ import coil.compose.AsyncImage
 import coil.disk.DiskCache
 import coil.memory.MemoryCache
 import coil.decode.SvgDecoder
-import okhttp3.OkHttpClient
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.delay
@@ -256,8 +256,7 @@ class MainActivity : ComponentActivity(), coil.ImageLoaderFactory {
                                     stats = playbackStats,
                                     streamTitle = currentTitle,
                                     timer = formatTime(secondsListened),
-                                    onStop = { radioPlayer.stop(); currentStation = null },
-                                    onEditClick = { stationToEdit = currentStation }
+                                    onStop = { radioPlayer.stop(); currentStation = null }
                                 )
                             }
                             NavigationBar(
@@ -273,7 +272,7 @@ class MainActivity : ComponentActivity(), coil.ImageLoaderFactory {
                                 NavigationBarItem(
                                     selected = selectedTab == 1,
                                     onClick = { selectedTab = 1 },
-                                    label = { Text("Settings") },
+                                    label = { Text(stringResource(R.string.settings)) },
                                     icon = { Icon(Icons.Default.Settings, null) }
                                 )
                             }
@@ -288,6 +287,9 @@ class MainActivity : ComponentActivity(), coil.ImageLoaderFactory {
                                 onStationSelected = { station ->
                                     currentStation = station
                                     radioPlayer.play(station)
+                                },
+                                onStationEditRequested = { station ->
+                                    stationToEdit = station
                                 },
                                 onStationsReordered = { updatedList ->
                                     stations = updatedList
@@ -364,10 +366,10 @@ fun SettingsScreen(
             .statusBarsPadding()
             .verticalScroll(rememberScrollState())
     ) {
-        Text("Settings", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
+        Text(text = stringResource(R.string.settings), style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(24.dp))
 
-        Text("Data", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+        Text(text = stringResource(R.string.data_section), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
         Spacer(Modifier.height(8.dp))
         Card(modifier = Modifier.fillMaxWidth()) {
             Column {
@@ -378,8 +380,8 @@ fun SettingsScreen(
                     Icon(Icons.Default.FileUpload, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Spacer(Modifier.width(16.dp))
                     Column {
-                        Text("Import M3U Playlist", style = MaterialTheme.typography.titleMedium)
-                        Text("Add stations from a file", style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.import_m3u), style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.import_m3u_sub), style = MaterialTheme.typography.bodySmall)
                     }
                 }
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
@@ -390,8 +392,8 @@ fun SettingsScreen(
                     Icon(Icons.Default.FileDownload, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Spacer(Modifier.width(16.dp))
                     Column {
-                        Text("Export M3U Playlist", style = MaterialTheme.typography.titleMedium)
-                        Text("Backup your stations as M3U", style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.export_m3u), style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.export_m3u_sub), style = MaterialTheme.typography.bodySmall)
                     }
                 }
             }
@@ -399,17 +401,17 @@ fun SettingsScreen(
 
         Spacer(Modifier.height(24.dp))
 
-        Text("Appearance", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+        Text(text = stringResource(R.string.appearance_section), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
         Spacer(Modifier.height(8.dp))
         Card(modifier = Modifier.fillMaxWidth()) {
             Column {
                 Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Text("Dark Mode", modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.dark_mode), modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
                     Switch(checked = isDarkMode, onCheckedChange = onDarkModeChange)
                 }
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp)
                 Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    Text("Dynamic Colors", modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.dynamic_colors), modifier = Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
                     Switch(checked = useDynamicColors, onCheckedChange = onDynamicColorsChange)
                 }
             }
@@ -417,14 +419,14 @@ fun SettingsScreen(
 
         Spacer(Modifier.height(24.dp))
 
-        Text("Credits", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+        Text(stringResource(R.string.credits_section), style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
         Spacer(Modifier.height(8.dp))
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
-                val creditsText = "Acoustic v1.3\n\n" +
+                val creditsText = "Acoustic v1.4\n\n" +
                         "Developed by:\n" +
                         "TheNextAtlas (Formerly TheMetalShard)\n\n" +
                         "Special thanks:\n" +
@@ -449,12 +451,13 @@ fun BottomPlayerBar(
     stats: String,
     streamTitle: String,
     timer: String,
-    onStop: () -> Unit,
-    onEditClick: () -> Unit
+    onStop: () -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     var sleepTimerMinutes by remember { mutableIntStateOf(0) }
     var showTimerDialog by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
 
     LaunchedEffect(sleepTimerMinutes) {
         if (sleepTimerMinutes > 0) {
@@ -482,7 +485,18 @@ fun BottomPlayerBar(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp, vertical = 8.dp)
-            .clickable { isExpanded = !isExpanded },
+            .combinedClickable(
+                onClick = { isExpanded = !isExpanded },
+                onLongClick = {
+                    if (streamTitle.isNotBlank()) {
+                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                        val clip = android.content.ClipData.newPlainText("Track Info", streamTitle)
+                        clipboard.setPrimaryClip(clip)
+
+                        android.widget.Toast.makeText(context, "Copied track info!", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                }
+            ),
         tonalElevation = 12.dp,
         shape = RoundedCornerShape(32.dp),
         color = MaterialTheme.colorScheme.surfaceColorAtElevation(12.dp)
@@ -517,13 +531,6 @@ fun BottomPlayerBar(
                 }
 
                 IconButton(
-                    onClick = onEditClick,
-                    modifier = Modifier.padding(end = 4.dp).size(36.dp)
-                ) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit Station", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
-                }
-
-                IconButton(
                     onClick = onStop,
                     modifier = Modifier.size(42.dp).background(MaterialTheme.colorScheme.errorContainer, CircleShape)
                 ) {
@@ -542,7 +549,7 @@ fun BottomPlayerBar(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column {
-                        Text("Sleep Timer", style = MaterialTheme.typography.titleSmall)
+                        Text(stringResource(R.string.sleep_timer), style = MaterialTheme.typography.titleSmall)
                         if (sleepTimerMinutes > 0) {
                             Text("Active: ${sleepTimerMinutes}m left", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelSmall)
                         }
@@ -573,7 +580,7 @@ fun TimerInputDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Set Sleep Timer") },
+        title = { Text(stringResource(R.string.set_sleep_timer)) },
         text = {
             Column {
                 Text("Enter minutes until stop:", style = MaterialTheme.typography.bodyMedium)
@@ -592,10 +599,10 @@ fun TimerInputDialog(
             Button(onClick = {
                 val mins = textValue.toIntOrNull() ?: 0
                 onConfirm(mins)
-            }) { Text("Set Timer") }
+            }) { Text(stringResource(R.string.set_timer)) }
         },
         dismissButton = {
-            TextButton(onClick = { onConfirm(0) }) { Text("Disable", color = Color.Red) }
+            TextButton(onClick = { onConfirm(0) }) { Text(stringResource(R.string.disable), color = Color.Red) }
         }
     )
 }
@@ -615,14 +622,22 @@ fun StationDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (initialStation == null || initialStation.id == -99) "Add Station" else "Edit Station") },
+        title = {
+            Text(
+                text = if (initialStation == null || initialStation.id == -99) {
+                    stringResource(R.string.add_station)
+                } else {
+                    stringResource(R.string.edit_station)
+                }
+            )
+        },
         text = {
             Column {
-                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text("Name") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text(stringResource(R.string.station_name)) }, modifier = Modifier.fillMaxWidth())
                 Spacer(Modifier.height(8.dp))
-                OutlinedTextField(value = url, onValueChange = { url = it }, label = { Text("Stream URL") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = url, onValueChange = { url = it }, label = { Text(stringResource(R.string.station_url)) }, modifier = Modifier.fillMaxWidth())
                 Spacer(Modifier.height(8.dp))
-                OutlinedTextField(value = icon, onValueChange = { icon = it }, label = { Text("Icon URL") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = icon, onValueChange = { icon = it }, label = {Text(stringResource(R.string.station_icon_url)) }, modifier = Modifier.fillMaxWidth())
             }
         },
         confirmButton = {
@@ -630,9 +645,9 @@ fun StationDialog(
         },
         dismissButton = {
             Row {
-                TextButton(onClick = onDismiss) { Text("Cancel") }
+                TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
                 if (initialStation != null && initialStation.id != -99) {
-                    TextButton(onClick = onDelete) { Text("Delete", color = Color.Red) }
+                    TextButton(onClick = onDelete) {Text(stringResource(R.string.delete), color = Color.Red) }
                 }
             }
         }
