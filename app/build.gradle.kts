@@ -12,7 +12,7 @@ android {
         applicationId = "com.metalshard.projectwave"
         minSdk = 21
         targetSdk = 36
-        versionCode = 1
+        versionCode = 2
         versionName = "1.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
