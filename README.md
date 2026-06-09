@@ -16,7 +16,7 @@
 - Supports M3U file importing/exporting
 - Works on Android 5 to 16
 - ICY metadata for stations
-- URI for quick station adding (Uses acoustic://register?name=&url=http://url.com&image=http://url.com/image format, only URL entry is required)
+- URI for quick station adding (Uses acoustic://register?name=test&url=http://url.com&image=http://url.com/image format as an example, only URL entry is required)
 
 > [!NOTE]
 > If you wish to suggest features, feel free to open an issue for the suggestion.
@@ -40,6 +40,14 @@ Project Wave was the original name for Acoustic before we changed the name.
 # Installation
 
 ### Android
+
+Acoustic is now on F-Droid!
+
+<p>
+  <a href="https://f-droid.org/en/packages/com.metalshard.projectwave/">
+    <img src="https://f-droid.org/badge/get-it-on.png" alt="Add to SideStore" width="200" />
+  </a>
+</p>
 
 You can install the app using Obtainium through these steps:
 1. Download and install Obtainium from [here](https://github.com/ImranR98/Obtainium/releases) (use the file named `app-release.apk`)
