@@ -41,12 +41,17 @@ Project Wave was the original name for Acoustic before we changed the name.
 
 ### Android
 
-Acoustic is now on F-Droid!
+Acoustic is now on F-Droid and OpenAPK!
 
 <p>
   <a href="https://f-droid.org/en/packages/com.metalshard.projectwave/">
-    <img src="https://f-droid.org/badge/get-it-on.png" alt="Add to SideStore" width="200" />
+    <img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" width="200" />
   </a>
+
+  <a href="https://www.openapk.net/acoustic/com.metalshard.projectwave">
+    <img src="https://www.openapk.net/images/openapk-badge.png" alt="Get it on OpenAPK" width="200" />
+  </a>
+  
 </p>
 
 You can install the app using Obtainium through these steps:
