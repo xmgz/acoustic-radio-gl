@@ -1,1 +1,24 @@
-
+<resources>
+    <string name="app_name" translatable="false">Acoustic</string>
+    <string name="settings">Axustes</string>
+    <string name="data_section">Datos</string>
+    <string name="import_m3u">Importar lista M3U</string>
+    <string name="import_m3u_sub">Importar as emisoras desde un ficheiro</string>
+    <string name="export_m3u">Exportar a un ficheiro M3U</string>
+    <string name="export_m3u_sub">Fai copia de apoio como M3U</string>
+    <string name="appearance_section">Aparencia</string>
+    <string name="dark_mode">Modo escuro</string>
+    <string name="dynamic_colors">Cores dinámicas</string>
+    <string name="credits_section">Créditos</string>
+    <string name="add_station">Engadir emisora</string>
+    <string name="edit_station">Editar emisora</string>
+    <string name="station_name">Nome</string>
+    <string name="station_url">URL do fluxo</string>
+    <string name="station_icon_url">URL da icona</string>
+    <string name="sleep_timer">Temporizador</string>
+    <string name="set_sleep_timer">Establecer apagado automático</string>
+    <string name="set_timer">Establecer temporizador</string>
+    <string name="cancel">Cancelar</string>
+    <string name="delete">Eliminar</string>
+    <string name="disable">Desactivar</string>
+</resources>
