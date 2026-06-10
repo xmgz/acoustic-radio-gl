@@ -1,0 +1,9 @@
+<b>Acoustic</b> è un app radio via internet semplice per Android
+
+Funzionalità:
+  Supporta importazione/esportazione di file M3U
+  Funziona su Android 5 to 16
+  Info ICY per le stazioni
+  URI for aggiungere stazioni via browser (Usa acoustic://register?name=&url=http://url.com&image=http://url.com/image come esempio, solo URL è richiesto)
+  Nessuna tracciabilità ulteriore
+  

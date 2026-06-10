@@ -1,0 +1,23 @@
+<resources>
+    <string name="settings">Impostazioni</string>
+    <string name="data_section">Dati</string>
+    <string name="import_m3u">Importa playlist M3U</string>
+    <string name="import_m3u_sub">Aggiungi stazioni da un file</string>
+    <string name="export_m3u">Esporta playlist M3U</string>
+    <string name="export_m3u_sub">Esporta stazioni con file M3U</string>
+    <string name="appearance_section">Aspetto</string>
+    <string name="dark_mode">Modalità scura</string>
+    <string name="dynamic_colors">Colori Material You</string>
+    <string name="credits_section">Riconoscimenti</string>
+    <string name="edit_station">Modifica stazione</string>
+    <string name="station_name">Nome</string>
+    <string name="station_url">URL stazione</string>
+    <string name="station_icon_url">URL icona</string>
+    <string name="sleep_timer">Timer riposo</string>
+    <string name="set_timer">Imposta</string>
+    <string name="cancel">Annulla</string>
+    <string name="delete">Cancella</string>
+    <string name="add_station">Aggiungi stazione</string>
+    <string name="set_sleep_timer">Imposta timer riposo</string>
+    <string name="disable">Disabilita</string>
+</resources>
